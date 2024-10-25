@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 colored = "2.1.0"
+toml = "0.8.19"
+serde = { version = "1.0.213", features = ["derive"] }
