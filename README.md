@@ -9,7 +9,7 @@ The **IUT Lab Kit** is a command-line interface (CLI) tool designed specifically
 - **C File Generation**: Generates C files for each task specified, making it easy to manage your coding assignments. 💻
 
 ## How to Use 📋
-To use the IUT Lab Kit, open your terminal and run the following command:
+Open your terminal and run the following command:
 
 ```bash
 lab [student_id] [lab_number] [number_of_tasks]
@@ -26,6 +26,16 @@ lab 230041234 7 4
 ```
 
 This command will create a folder for lab number 7, containing 4 C files for the specified student ID.
+
+
+Or,
+Simply run lab in your terminal. 
+```bash
+lab
+```
+
+When you run the command for the first time, it will ask for your name and student ID.
+After the initial setup, you can directly create your lab files without having to re-enter your details
 
 ## Installation ⚙️
 1. **Run the Installer**: Double-click the setup file to begin the installation process.
