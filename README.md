@@ -28,6 +28,14 @@ lab 230041234 7 4
 This command will create a folder for lab number 7, containing 4 C files for the specified student ID.
 
 
+If you want to create all the files in the current directory then just put a "." after that .
+```bash
+lab 230041234 7 4 .
+```
+This will only create the files.
+
+
+
 Or,
 Simply run lab in your terminal. 
 ```bash
@@ -49,4 +57,4 @@ After the initial setup, you can directly create your lab files without having t
      - Click "OK" to close all dialog boxes.
 
 ## License 📄
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+This project is licensed under the MIT License.
