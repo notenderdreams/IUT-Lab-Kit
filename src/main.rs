@@ -30,7 +30,6 @@ fn input(prompt: &str) -> i32 {
     }
 }
 
-
 fn read_config(config_file_path: &str) -> Result<Config, Box<dyn std::error::Error>> {
     let config_content = fs::read_to_string(config_file_path)?;
     let config: Config = toml::from_str(&config_content)?;
@@ -69,8 +68,7 @@ fn save_config() -> io::Result<()> {
 
                 let lab_id: i32 = input(">>  Lab no      : ");
                 let num_of_tasks: i32 = input(">>  Number of tasks: ");
-                fs::create_dir_all(format!("{}_Lab{}", config.std_id, lab_id))?;
-                ops(config.std_id, lab_id, num_of_tasks).expect("Failed to create files");
+                ops(config.std_id, lab_id, num_of_tasks, false).expect("Failed to create files");
             }
             Err(err) => {
                 println!("Failed to read config: {}", err);
@@ -78,14 +76,23 @@ fn save_config() -> io::Result<()> {
         }
     } else {
         create_config(&config_file_path)?;
-        let _ =save_config();
+        let _ = save_config();
     }
 
     Ok(())
 }
 
-fn ops(std_id: i32, lab_id: i32, tasks: i32) -> std::io::Result<()> {
-    let dir_path = format!("{}_Lab{}", std_id, lab_id);
+fn ops(std_id: i32, lab_id: i32, tasks: i32, use_current_dir: bool) -> std::io::Result<()> {
+    let dir_path = if use_current_dir {
+        ".".to_string()
+    } else {
+        format!("{}_Lab{}", std_id, lab_id)
+    };
+
+    if !use_current_dir {
+        fs::create_dir_all(&dir_path)?;
+    }
+
     println!("Creating files...");
     for i in 1..=tasks {
         let file_name = format!("{}/{}_lab{}_Task{}.c", dir_path, std_id, lab_id, i);
@@ -102,7 +109,7 @@ fn main() -> std::io::Result<()> {
     if args.len() == 1 {
         let _ = save_config();
         return Ok(());
-    } else if args.len() != 4 {
+    } else if args.len() < 4 || args.len() > 5 {
         println!("{}", lib::USAGE);
         return Ok(());
     }
@@ -111,8 +118,10 @@ fn main() -> std::io::Result<()> {
     let lab_id = args[2].parse::<i32>().expect("Invalid lab number");
     let num_of_tasks = args[3].parse::<i32>().expect("Invalid number of tasks");
 
-    fs::create_dir_all(format!("{}_Lab{}", std_id, lab_id))?;
-    ops(std_id, lab_id, num_of_tasks).expect("Failed to create files");
+    // Check if the last argument is a period, indicating current directory usage
+    let use_current_dir = args.len() == 5 && args[4] == ".";
+
+    ops(std_id, lab_id, num_of_tasks, use_current_dir).expect("Failed to create files");
 
     Ok(())
 }
