@@ -8,6 +8,15 @@ The **IUT Lab Kit** is a command-line interface (CLI) tool designed specifically
 - **Organized Structure**: Automatically creates a dedicated folder structure to keep your lab tasks organized. 📂
 - **C File Generation**: Generates C files for each task specified, making it easy to manage your coding assignments. 💻
 ---
+
+## Installation ⚙️
+- Visit the [Releases](https://github.com/notenderdreams/IUT-Lab-Kit/releases/tag/cli) page on GitHub.
+- Download the `IUT-Lab-Kit-setup.exe` file.
+- Double-click on  the installer.
+- Follow the on-screen instructions to complete the installation.
+and Done.
+
+---
 ## How to Use 📋
 Open your terminal and run the following command:
 
@@ -59,16 +68,7 @@ This will delete all generated files, keeping only the source files intact. 🗂
 
 ---
 
-## Installation ⚙️
-1. **Run the Installer**: Double-click the setup file to begin the installation process.
-2. **Add to System Variables**: After installation, add the installation directory (`C:\Program Files (x86)\IUT Lab Kit`) to your system environment variables to access the `lab` command from anywhere in the terminal.
-   - To add to system variables:
-     - Right-click on "This PC" or "Computer" and select "Properties."
-     - Click on "Advanced system settings."
-     - In the System Properties window, click on the "Environment Variables" button.
-     - In the System variables section, find and select the `Path` variable, then click "Edit."
-     - Click "New" and add `C:\Program Files (x86)\IUT Lab Kit`.
-     - Click "OK" to close all dialog boxes.
+
 
 ## License 📄
 This project is licensed under the MIT License.
