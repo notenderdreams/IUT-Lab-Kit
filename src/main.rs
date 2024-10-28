@@ -1,17 +1,27 @@
 mod modules;
-use modules::utils::{USAGE,ops};
 use modules::config::save_config;
-
-use std::{env, fs};
-use colored::Colorize;
+use modules::utils::{ops, cleanup, USAGE};
+use std::env;
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
+    if args.len() == 2 && args[1] == "help" {
+        println!("{}", USAGE);
+        return Ok(());
+    }
+
+    if args.len() == 2 && args[1] == "clean" {
+        cleanup().expect("Cleanup Failed!");
+        return Ok(());
+    }
+
     if args.len() == 1 {
         let _ = save_config();
         return Ok(());
-    } else if args.len() < 4 || args.len() > 5 {
+    }
+
+    if args.len() < 4 || args.len() > 5 {
         println!("{}", USAGE);
         return Ok(());
     }

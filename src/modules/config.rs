@@ -1,11 +1,11 @@
-use std::{env, fs, io};
-use std::io::Write;
-use std::path::Path;
+use crate::modules::utils;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
-use utils::str_input;
+use std::io::Write;
+use std::path::Path;
+use std::{env, fs, io};
 use utils::ops;
-use crate::modules::utils;
+use utils::str_input;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
@@ -19,9 +19,8 @@ pub fn read_config(config_file_path: &str) -> Result<Config, Box<dyn std::error:
     Ok(config)
 }
 
-
 pub fn create_config(config_file_path: &str) -> io::Result<()> {
-    println!("{}","^•ﻌ•^".blue());
+    println!("{}", "^•ﻌ•^".blue());
 
     let username: String = str_input("Enter your name: ");
     let std_id: i32 = str_input("Enter your student ID: ").parse().unwrap();
@@ -39,10 +38,10 @@ pub fn create_config(config_file_path: &str) -> io::Result<()> {
     Ok(())
 }
 
-
-
 pub fn save_config() -> io::Result<()> {
-    let user_profile = env::var("USERPROFILE").or_else(|_| env::var("HOME")).expect("Unable to find user directory");
+    let user_profile = env::var("USERPROFILE")
+        .or_else(|_| env::var("HOME"))
+        .expect("Unable to find user directory");
     let config_dir = format!("{}/Documents/enderdreams/config", user_profile);
     let config_file_path = format!("{}/lab_config.toml", config_dir);
 
@@ -50,7 +49,11 @@ pub fn save_config() -> io::Result<()> {
     if Path::new(&config_file_path).exists() {
         match read_config(&config_file_path) {
             Ok(config) => {
-                println!("Hey, {}! ({})", config.username.purple(), config.std_id.to_string().blue());
+                println!(
+                    "Hey, {}! ({})",
+                    config.username.purple(),
+                    config.std_id.to_string().blue()
+                );
 
                 let lab_id: i32 = str_input(">>  Lab no      : ").parse().unwrap();
                 let num_of_tasks: i32 = str_input(">>  Number of tasks: ").parse().unwrap();

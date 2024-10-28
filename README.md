@@ -7,7 +7,7 @@ The **IUT Lab Kit** is a command-line interface (CLI) tool designed specifically
 - **User-Friendly Input**: Accepts input for student ID, lab number, and the number of tasks.
 - **Organized Structure**: Automatically creates a dedicated folder structure to keep your lab tasks organized. 📂
 - **C File Generation**: Generates C files for each task specified, making it easy to manage your coding assignments. 💻
-
+---
 ## How to Use 📋
 Open your terminal and run the following command:
 
@@ -44,6 +44,20 @@ lab
 
 When you run the command for the first time, it will ask for your name and student ID.
 After the initial setup, you can directly create your lab files without having to re-enter your details
+
+---
+
+## 🧹 Cleanup
+
+After compilation, several unnecessary files are generated. To remove them, simply run:
+
+```bash
+lab clean
+```
+
+This will delete all generated files, keeping only the source files intact. 🗂️
+
+---
 
 ## Installation ⚙️
 1. **Run the Installer**: Double-click the setup file to begin the installation process.

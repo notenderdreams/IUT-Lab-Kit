@@ -1,6 +1,6 @@
-use std::{fs, io};
-use std::io::Write;
 use colored::Colorize;
+use std::io::Write;
+use std::{fs, io};
 
 pub static C_CODE: &str = r#"
 #include <stdio.h>
@@ -11,7 +11,6 @@ int main(){
     return 0;
 }
 "#;
-
 
 pub const USAGE: &str = r#"
 Usage: lab [student_id] [lab_number] [number_of_tasks]
@@ -25,7 +24,6 @@ Example:
     lab 230041234 7 4
 "#;
 
-
 //functions
 
 pub fn str_input(prompt: &str) -> String {
@@ -35,7 +33,6 @@ pub fn str_input(prompt: &str) -> String {
     io::stdin().read_line(&mut input).unwrap();
     input.trim().to_string()
 }
-
 
 pub fn ops(std_id: i32, lab_id: i32, tasks: i32, use_current_dir: bool) -> std::io::Result<()> {
     let dir_path = if use_current_dir {
@@ -51,10 +48,27 @@ pub fn ops(std_id: i32, lab_id: i32, tasks: i32, use_current_dir: bool) -> std::
     println!("Creating files...");
     for i in 1..=tasks {
         let file_name = format!("{}/{}_lab{}_Task{}.c", dir_path, std_id, lab_id, i);
-        fs::write(file_name.clone(), C_CODE)?;  // Using the C_CODE static variable as content
+        fs::write(file_name.clone(), C_CODE)?;
         println!("[✔] {}", file_name.green());
     }
-    println!("{}","All files created successfully! 🎉".blue());
+    println!("{}", "All files created successfully! 🎉".blue());
+    Ok(())
+}
+
+
+pub fn cleanup()->std::io::Result<()>{
+    let dir = ".";
+
+    for entry in fs::read_dir(dir)?{
+        let e = entry?;
+        let path = e.path();
+
+        if path.is_file() && path.extension().map(|ext| ext != "c").unwrap_or(true){
+            fs::remove_file(&path)?;
+        }
+    }
+
+    println!("{}","Cleanup complete. 🧹".blue());
     Ok(())
 }
 
