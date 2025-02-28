@@ -1,0 +1,4 @@
+/target
+**/*.c
+.lab
+temp_program.exe
