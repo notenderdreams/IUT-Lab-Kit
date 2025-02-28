@@ -1,8 +1,11 @@
 use clap::{Parser, Subcommand};
 use cliclack::{self, intro, outro, select, spinner};
+use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
+use std::io::stdin;
 use std::io::Write;
 use std::path::Path;
 use std::process::Command;
@@ -96,6 +99,59 @@ async fn get_user_input() -> Result<(String, u32, u32), Box<dyn std::error::Erro
     Ok((student_id, lab_number, num_tasks))
 }
 
+fn read_multiline_input(prompt: &str) -> Result<Option<String>, Box<dyn std::error::Error>> {
+    let mut input = String::new();
+    println!(
+        "{} (Ctrl+C/Esc to cancel, Shift+Enter for newline, Enter to submit):",
+        prompt
+    );
+    enable_raw_mode()?;
+
+    loop {
+        match read()? {
+            Event::Key(KeyEvent {
+                code, modifiers, ..
+            }) => {
+                match code {
+                    KeyCode::Char('c') if modifiers.contains(KeyModifiers::CONTROL) => {
+                        disable_raw_mode()?;
+                        println!("\nCancelled");
+                        return Ok(None);
+                    }
+                    KeyCode::Esc => {
+                        disable_raw_mode()?;
+                        println!("\nCancelled");
+                        return Ok(None);
+                    }
+                    KeyCode::Enter => {
+                        if modifiers.contains(KeyModifiers::SHIFT) {
+                            input.push('\n');
+                            print!("\r\n");
+                        } else {
+                            println!();
+                            disable_raw_mode()?;
+                            return Ok(Some(input));
+                        }
+                    }
+                    KeyCode::Char(c) => {
+                        input.push(c);
+                        print!("{}", c);
+                    }
+                    KeyCode::Backspace => {
+                        if !input.is_empty() {
+                            input.pop();
+                            print!("\x08 \x08");
+                        }
+                    }
+                    _ => {}
+                }
+                std::io::stdout().flush()?;
+            }
+            _ => {}
+        }
+    }
+}
+
 async fn handle_set_command(task_number: u32) -> Result<(), Box<dyn std::error::Error>> {
     let config_path = Path::new(".lab").join("config.json");
     if !config_path.exists() {
@@ -130,17 +186,21 @@ async fn handle_set_command(task_number: u32) -> Result<(), Box<dyn std::error::
 
     match action {
         "add" => loop {
-            let input = cliclack::input("Enter input")
-                .placeholder("e.g., 5 3")
-                .interact::<String>()?;
+            let input = cliclack::input("Enter input (use \\n for newlines)")
+                .placeholder("e.g., 5 3\\n7 2")
+                .interact::<String>()?
+                .replace("\\n", "\n");
 
-            let output = cliclack::input("Enter expected output")
-                .placeholder("e.g., 8")
-                .interact::<String>()?;
+            let output = cliclack::input("Enter expected output (use \\n for newlines)")
+                .placeholder("e.g., 8\\n9")
+                .interact::<String>()?
+                .replace("\\n", "\n");
 
-            questions[task_idx as usize]
-                .io
-                .push(TestCase { input, output });
+            questions[task_idx as usize].io.push(TestCase {
+                input: input.trim().to_string(),
+                output: output.trim().to_string(),
+            });
+
             let mut sp = spinner();
             sp.start("Saving test case...");
             fs::write(
@@ -246,7 +306,7 @@ async fn handle_run_command(task_number: u32) -> Result<(), Box<dyn std::error::
     for (i, test) in question.io.iter().enumerate() {
         println!("Test case #{}", i + 1);
         println!("Input: {}", test.input);
-        
+
         let mut child = Command::new("./temp_program")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -259,7 +319,7 @@ async fn handle_run_command(task_number: u32) -> Result<(), Box<dyn std::error::
 
         let output = child.wait_with_output()?;
         let actual_output = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        
+
         println!("Expected output: {}", test.output);
         println!("Actual output: {}", actual_output);
 
