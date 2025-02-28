@@ -1,4 +1,3 @@
-
 mod cli;
 mod core;
 mod models;
@@ -16,7 +15,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Some(Commands::Init { student_id, lab_number, num_tasks }) => {
+        Some(Commands::Init {
+            student_id,
+            lab_number,
+            num_tasks,
+        }) => {
             let (student_id, lab_number, num_tasks) = match (student_id, lab_number, num_tasks) {
                 (Some(id), Some(lab), Some(tasks)) => (id.clone(), *lab, *tasks),
                 _ => config::get_user_input().await?,
@@ -29,12 +32,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             sp.stop("Lab files created ✨");
             outro("Lab initialized successfully! 🎉")?;
-        }
-        Some(Commands::Clean) => {
-            let mut sp = cliclack::spinner();
-            sp.start("Cleaning up files...");
-            file_handler::clean_files()?;
-            sp.stop("Cleanup complete 🧹");
         }
         Some(Commands::Set { task_number }) => {
             config::handle_set_command(*task_number).await?;

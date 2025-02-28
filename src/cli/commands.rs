@@ -18,8 +18,6 @@ pub enum Commands {
         /// The number of tasks to create (e.g., 4)
         num_tasks: Option<u32>,
     },
-    /// Clean up generated files
-    Clean,
     /// Set test cases for a task
     Set {
         /// Task number to set test cases for

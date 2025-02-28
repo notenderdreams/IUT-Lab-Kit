@@ -47,23 +47,3 @@ pub fn create_config_file(
     Ok(())
 }
 
-pub fn clean_files() -> std::io::Result<()> {
-    // Clean C files
-    let pattern = format!("*_Lab*_Task*.c");
-    if let Ok(paths) = glob::glob(&pattern) {
-        for entry in paths {
-            if let Ok(path) = entry {
-                let _ = fs::remove_file(&path);
-            }
-        }
-    }
-
-    // Clean .lab directory
-    if let Err(e) = fs::remove_dir_all(".lab") {
-        if e.kind() != std::io::ErrorKind::NotFound {
-            return Err(e);
-        }
-    }
-
-    Ok(())
-}
