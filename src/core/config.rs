@@ -69,8 +69,9 @@ pub async fn handle_set_command(task_number: u32) -> Result<(), Box<dyn std::err
     }
 
     let mut questions: Vec<Question> = serde_json::from_str(&fs::read_to_string(&config_path)?)?;
+    let question_index = (task_number - 1) as usize;
     let question = questions
-        .get_mut((task_number - 1) as usize)
+        .get_mut(question_index)
         .ok_or("Invalid task number")?;
 
     intro("Set Test Cases")?;
@@ -91,6 +92,7 @@ pub async fn handle_set_command(task_number: u32) -> Result<(), Box<dyn std::err
         println!("\n{}", "Commands:".blue());
         println!("a - Add test case");
         println!("d - Delete test case");
+        println!("r - Run tests");
         println!("q - Save and quit");
 
         match read()? {
@@ -137,6 +139,18 @@ pub async fn handle_set_command(task_number: u32) -> Result<(), Box<dyn std::err
                     question.io.remove(index);
                     enable_raw_mode()?;
                 }
+            }
+            Event::Key(KeyEvent {
+                code: KeyCode::Char('r'),
+                ..
+            }) => {
+                disable_raw_mode()?;
+                let test_question = questions[question_index].clone();
+                fs::write(&config_path, serde_json::to_string_pretty(&questions)?)?;
+                let (_passed, _total, _failed) =
+                    crate::core::test_runner::run_tests_for_task(&test_question)?;
+                outro("Test cases saved and executed! ✨")?;
+                return Ok(());
             }
             Event::Key(KeyEvent {
                 code: KeyCode::Char('q'),
