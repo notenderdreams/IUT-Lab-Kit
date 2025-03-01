@@ -3,6 +3,7 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
+use std::time::Instant;
 
 use crate::models::question::Question;
 
@@ -15,6 +16,8 @@ pub fn run_tests_for_task(
     if !Path::new(file_path).exists() {
         return Ok((0, 0, failed_tests));
     }
+
+    println!("\nFile: {}", file_path.bold());
 
     // Compile the C file
     let mut sp = cliclack::spinner();
@@ -41,7 +44,10 @@ pub fn run_tests_for_task(
     for (i, test) in question.io.iter().enumerate() {
         println!("{}", format!("Test case #{}", i + 1).bold());
         println!("{}", "─".repeat(50));
+        println!("{:>12} {}", "Input:".bold().blue(), test.input);
+        println!("{:>12} {}", "Status:".bold(), "Running".yellow());
 
+        let start_time = Instant::now();
         let mut child = Command::new("./temp_program")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -52,25 +58,32 @@ pub fn run_tests_for_task(
         }
 
         let output = child.wait_with_output()?;
+        let elapsed = start_time.elapsed();
         let actual_output = String::from_utf8_lossy(&output.stdout).trim().to_string();
 
+        // Move cursor up to overwrite the status line
+        print!("\x1B[1A\x1B[2K");
+
         if actual_output == test.output {
-            println!("{:>12} {}", "Input:".bold().blue(), test.input);
             println!("{:>12} {}", "Output:".bold().blue(), actual_output);
-            println!("{:>12} {}", "Status:".bold(), "✅ Passed".green());
+            println!(
+                "{:>12} {} ({}ms)",
+                "Status:".bold(),
+                "Passed".green(),
+                elapsed.as_millis()
+            );
             passed += 1;
         } else {
-            println!("{:>12} {}", "Input:".bold().blue(), test.input);
             println!("{:>12} {}", "Expected:".bold().yellow(), test.output);
             println!("{:>12} {}", "Actual:".bold().red(), actual_output);
-            println!("{:>12} {}", "Status:".bold(), "❌ Failed".red());
+            println!("{:>12} {}", "Status:".bold(), "Failed".red());
             failed_tests.push((i + 1, question.file_id.clone()));
         }
         println!();
     }
 
     // Clean up temporary executable
-    let _ = fs::remove_file("temp_program");
+    let _ = fs::remove_file("temp_program.exe");
 
     Ok((passed, total, failed_tests))
 }
